@@ -15,7 +15,7 @@ a, .btn-link {
 }
 
 app {
-    position: absolute;
+    position: relative;
     /*    display: flex;*/
     flex-direction: column;
     height: 100%;
