@@ -1,0 +1,36 @@
+﻿@page "/"
+@using AntDesign
+@using CodePlus.Blazor.Data.Ocelots
+@using Newtonsoft.Json
+@inject IOcelotAdminService OcelotAdminService
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+<Button Type="primary" OnClick="GetOcelotConfig">Get Ocelot Configs</Button>
+@Data
+<TextArea Placeholder="Autosize height based on content lines" MinRows="3" MaxRows="5" @bind-Value="@txtValue" />
+
+<Button Type="primary" OnClick="SetConfig">Set Ocelot Configs</Button>
+@code {
+    private string Data;
+
+    string txtValue { get; set; }
+
+    private async Task GetOcelotConfig()
+    {
+        var data = await OcelotAdminService.GetConfig();
+
+        Data = JsonConvert.SerializeObject(data);
+    }
+
+    private async Task SetConfig()
+    {
+        var data = await OcelotAdminService.SetConfig(txtValue);
+
+        Data = JsonConvert.SerializeObject(data);
+    }
+}
