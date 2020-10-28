@@ -66,6 +66,7 @@ namespace CodePlus.Blazor.Data.Https
 
         public async Task<T> PostFormDataAsync<T>(string uri, Dictionary<string,string> data = null) where T : class
         {
+            _httpClient.DefaultRequestHeaders.Clear();
             HttpContent httpContent = new FormUrlEncodedContent(data);
             var response = await _httpClient.PostAsync(uri, httpContent);
             if (response.IsSuccessStatusCode)

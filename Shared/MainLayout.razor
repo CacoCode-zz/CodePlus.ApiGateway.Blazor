@@ -1,44 +1,35 @@
 ﻿@inherits LayoutComponentBase
 @using AntDesign
-@*
-    <div class="sidebar">
-        <NavMenu />
+
+@*<div class="sidebar">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="top-row px-4">
+        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
     </div>
 
-    <div class="main">
-        <div class="top-row px-4">
-            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-        </div>
-
-        <div class="content px-4">
-            @Body
-        </div>
-    </div>*@
-@code
-{
-    bool collapsed;
-
-    void toggle()
-    {
-        collapsed = !collapsed;
-    }
-}
+    <div class="content px-4">
+        @Body
+    </div>
+</div>*@
 
 <Layout>
     <Sider Collapsible Collapsed=@collapsed NoTrigger OnCollapse="OnCollapse">
         <div class="logo" />
         <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline" DefaultSelectedKeys=@(new[]{"1"})>
-            <MenuItem Key="1">
+            <MenuItem Key="1" RouterLink="/">
                 <Icon Type="user" Theme="outline" />
                 <span>nav 1</span>
             </MenuItem>
-            <MenuItem Key="2">
+            <MenuItem Key="2" RouterLink="/counter">
                 <Icon Type="video-camera" Theme="outline" />
                 <span>nav 2</span>
             </MenuItem>
-            <MenuItem Key="3">
+            <MenuItem Key="3" RouterLink="/gatewayconfig">
                 <Icon Type="upload" Theme="outline" />
-                <span>nav 3</span>
+                <span>网关配置</span>
             </MenuItem>
         </Menu>
     </Sider>
@@ -85,6 +76,13 @@
 
 
 @code{
+
+    bool collapsed;
+
+    void toggle()
+    {
+        collapsed = !collapsed;
+    }
 
     void OnCollapse(bool isCollapsed)
     {

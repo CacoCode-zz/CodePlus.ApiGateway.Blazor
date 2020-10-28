@@ -1,0 +1,58 @@
+﻿@page "/gatewayconfig"
+@using CodePlus.Blazor.Data.Ocelots
+@using Newtonsoft.Json
+@using Ocelot.Configuration.File
+@using System.ComponentModel
+
+@inject IOcelotAdminService OcelotAdminService
+
+
+<h1>网关配置</h1>
+
+<Table DataSource="@OcelotConfiguration.Routes.ToArray()">
+    <Column @bind-Field="@context.DownstreamPathTemplate"></Column>
+    <Column @bind-Field="@context.UpstreamPathTemplate"></Column>
+    <Column @bind-Field="@context.ServiceName"></Column>
+    <Column @bind-Field="@context.UpstreamHttpMethod">
+        @foreach (var method in context.UpstreamHttpMethod)
+        {
+            var color = method.Length > 3 ? "geekblue" : "green";
+            if (method == "loser")
+            {
+                color = "volcano";
+            }
+            <Tag Color="@color">@method</Tag>
+        }
+    </Column>
+    <ActionColumn Title="Acton">
+        <Space Size="middle">
+            <SpaceItem>
+                <a>Invite @context.ServiceName</a>
+            </SpaceItem>
+            <SpaceItem>
+                <a>Delete</a>
+            </SpaceItem>
+        </Space>
+    </ActionColumn>
+</Table>
+
+@code {
+    private FileConfiguration OcelotConfiguration = new FileConfiguration();
+
+    protected override async Task OnInitializedAsync()
+    {
+        OcelotConfiguration = await OcelotAdminService.GetConfig();
+    }
+
+    private async Task GetOcelotConfig()
+    {
+
+    }
+
+    private async Task SetConfig()
+    {
+        //var data = await OcelotAdminService.SetConfig(txtValue);
+
+        //OcelotConfiguration = JsonConvert.SerializeObject(data);
+    }
+}

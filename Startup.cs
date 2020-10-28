@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +13,8 @@ using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 using Ocelot.Administration;
 using Autofac;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
 
 namespace CodePlus.Blazor
 {
@@ -43,6 +46,7 @@ namespace CodePlus.Blazor
             services.AddOcelot(Configuration)
                .AddConsul()
                .AddAdministration("/administration", "secret");
+            services.AddServerSideBlazor();
             //services.AddSingleton<WeatherForecastService>();
         }
 
@@ -67,14 +71,15 @@ namespace CodePlus.Blazor
 
             app.UseRouting();
             app.UseCors(DefaultCorsPolicy);
-
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapRazorPages();
-                //endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapControllers();
+                endpoints.MapFallbackToPage("/_Host");
             });
             app.UseOcelot().Wait();
+
             logger.LogInformation($"Environment:{env.EnvironmentName}{Environment.NewLine}" +
                        $"Ocelot:{Configuration["GlobalConfiguration:BaseUrl"]}{Environment.NewLine}");
         }
