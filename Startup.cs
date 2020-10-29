@@ -15,6 +15,7 @@ using Ocelot.Administration;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using CodePlus.Blazor.Extensions;
 
 namespace CodePlus.Blazor
 {
@@ -47,7 +48,6 @@ namespace CodePlus.Blazor
                .AddConsul()
                .AddAdministration("/administration", "secret");
             services.AddServerSideBlazor();
-            //services.AddSingleton<WeatherForecastService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -70,13 +70,15 @@ namespace CodePlus.Blazor
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseOceotAdminMiddleware();
+
             app.UseCors(DefaultCorsPolicy);
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapBlazorHub();
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToPage("/_Host");
+                endpoints.MapFallbackToPage("{*path:regex(^(?![administration|api]).*$)}", "/_Host");
             });
             app.UseOcelot().Wait();
 
