@@ -1,0 +1,22 @@
+﻿@page "/gatewayroute"
+@layout MainLayout
+@using CodePlus.Blazor.Data.Ocelots;
+@using CodePlus.Blazor.Data.Ocelots.Dto;
+@inject IOcelotAdminService OcelotAdminService
+@inject ToastService ToastService
+
+<Button Color="Color.Primary">主要按钮</Button>
+
+<Table TItem="GatewayRouteDto"
+       Items="@GatewayRoutes"
+       IsStriped="true"
+       IsPagination="true"
+       ShowSkeleton="true">
+    <TableColumns>
+        <TableColumn @bind-Field="@context.DownstreamPathTemplate" />
+        <TableColumn @bind-Field="@context.UpstreamPathTemplate" />
+        <TableColumn @bind-Field="@context.DownstreamHostAndPorts" />
+        <TableColumn @bind-Field="@context.UpstreamHttpMethod" />
+        <TableColumn @bind-Field="@context.DownstreamScheme" />
+    </TableColumns>
+</Table>

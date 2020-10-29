@@ -15,6 +15,11 @@ using Ocelot.Administration;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.HttpOverrides;
+using System.Linq;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.Extensions.Options;
+using System.Globalization;
 
 namespace CodePlus.Blazor
 {
@@ -41,18 +46,31 @@ namespace CodePlus.Blazor
                 options.AddPolicy(DefaultCorsPolicy, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
             );
             RedisHelper.Initialization(new CSRedis.CSRedisClient(Configuration["Redis:Configuration"]));
+            services.AddResponseCompression();
             services.AddRazorPages();
-            services.AddServerSideBlazor();
-            services.AddAntDesign();
+            // 增加 BootstrapBlazor 组件
+            services.AddBootstrapBlazor();
             services.AddOcelot(Configuration)
                .AddConsul()
                .AddAdministration("/administration", "secret");
             services.AddServerSideBlazor();
+            // 增加多语言支持
+            services.AddJsonLocalization();
+            services.Configure<RequestLocalizationOptions>(options =>
+            {
+                var supportedCultures = Configuration.GetSupportCultures().Select(kv => new CultureInfo(kv.Value)).ToList();
+                options.DefaultRequestCulture = new RequestCulture("zh-CN");
+                options.SupportedCultures = supportedCultures;
+                options.SupportedUICultures = supportedCultures;
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ILogger<Startup> logger)
         {
+            app.UseRequestLocalization(app.ApplicationServices.GetService<IOptions<RequestLocalizationOptions>>().Value);
+            app.UseForwardedHeaders(new ForwardedHeadersOptions() { ForwardedHeaders = ForwardedHeaders.All });
+
             loggerFactory.AddSerilog();
             if (env.IsDevelopment())
             {
@@ -64,7 +82,7 @@ namespace CodePlus.Blazor
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
-
+            app.UseResponseCompression();
             app.UseSerilogRequestLogging();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
@@ -74,9 +92,13 @@ namespace CodePlus.Blazor
             app.UseCors(DefaultCorsPolicy);
             app.UseEndpoints(endpoints =>
             {
+                //endpoints.MapDefaultControllerRoute();
+                //endpoints.MapBlazorHub();
+                //endpoints.MapFallbackToPage("/_Host");
+
                 endpoints.MapBlazorHub();
                 endpoints.MapRazorPages();
-                endpoints.MapControllers();
+                endpoints.MapDefaultControllerRoute();
                 endpoints.MapFallbackToPage("{*path:regex(^(?![administration|api]).*$)}", "/_Host");
             });
             app.UseOcelot().Wait();

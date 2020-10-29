@@ -1,92 +1,89 @@
 ﻿@inherits LayoutComponentBase
-@using AntDesign
 
-@*<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
-    </div>
-
-    <div class="content px-4">
-        @Body
-    </div>
-</div>*@
-
-<Layout>
-    <Sider Collapsible Collapsed=@collapsed NoTrigger OnCollapse="OnCollapse">
-        <div class="logo" />
-        <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline" DefaultSelectedKeys=@(new[]{"1"})>
-            <MenuItem Key="1" RouterLink="/">
-                <Icon Type="user" Theme="outline" />
-                <span>nav 1</span>
-            </MenuItem>
-            <MenuItem Key="2" RouterLink="/counter">
-                <Icon Type="video-camera" Theme="outline" />
-                <span>nav 2</span>
-            </MenuItem>
-            <MenuItem Key="3" RouterLink="/gatewayconfig">
-                <Icon Type="upload" Theme="outline" />
-                <span>网关配置</span>
-            </MenuItem>
-        </Menu>
-    </Sider>
-    <Layout Class="site-layout">
-        <Header Class="site-layout-background" Style="padding: 0;">
-            @if (collapsed)
+<Layout SideWidth="0" IsPage="true" IsFullSide="true" IsFixedHeader="true" IsFixedFooter="true"
+        ShowFooter="true" ShowGotoTop="true" ShowCollapseBar="true" OnCollapsed="@OnCollapsed" Menus="@GetIconSideMenuItems()">
+    <Header>
+        @*<span class="ml-3 flex-fill">Bootstrap of Blazor</span>
+        <img src="_content/BootstrapBlazor.Shared/images/Argo.png" class="layout-avatar-right" />
+        <span class="ml-3 d-none d-sm-block">超级管理员</span>*@
+    </Header>
+    <Side>
+        <div class="layout-banner">
+            @if (IsCollapsed)
             {
-                <Icon Type="menu-unfold" Theme="outline" Class="trigger" OnClick="toggle" />
+                <img class="layout-logo" src="images/logo.png"  style="width:40px" />
             }
             else
             {
-                <Icon Type="menu-fold" Theme="outline" Class="trigger" OnClick="toggle" />
+                <img class="layout-logo" src="images/logo-color.png" style="width:100px" />
             }
-        </Header>
-        <Content Class="site-layout-background" Style="margin: 24px 16px;padding: 24px;min-height: 88vh;">
+            @*<div class="layout-title">
+            <span>演示系统</span>
+        </div>*@
+        </div>
+        @*<div class="layout-user">
+                <img class="layout-avatar" >
+                <div class="layout-title">
+                    <span>管理员</span>
+                </div>
+                <div class="layout-user-state"></div>
+            </div>*@
+    </Side>
+    <Main>
+        <CascadingValue Value="this" IsFixed="true">
             @Body
-        </Content>
-    </Layout>
+        </CascadingValue>
+    </Main>
+    <Footer>
+        <div class="text-center flex-fill">
+            <a href="https://gitee.com/LongbowEnterprise/BootstrapAdmin" target="_blank">Bootstrap Admin</a>
+        </div>
+    </Footer>
 </Layout>
-
 <style>
-    .trigger {
-        font-size: 18px;
-        line-height: 64px;
-        padding: 0 24px;
-        cursor: pointer;
-        transition: color 0.3s;
+    .layout.is-page .layout-header {
+        /* background-color: #17a2b8; */
+        height: 50px;
+        /* color: #fff; */
+        display: flex;
+        align-items: center;
+        padding: 1rem;
+        background-color: #fff !important;
     }
 
-        .trigger:hover {
-            color: #1890ff;
-        }
-
-    .logo {
-        height: 32px;
-        background: rgba(255, 255, 255, 0.2);
-        margin: 16px;
-    }
-
-    .site-layout .site-layout-background {
+    .layout.is-page .layout-main {
+        min-height: calc(100vh - 130px);
         background: #fff;
+        margin: 20px;
     }
+
+    .layout.is-page .layout-right, .layout.is-page .has-sidebar .layout-main {
+        background: #f0f2f5;
+    }
+
+    .layout.is-page .layout-footer {
+        background-color: #fff;
+    }
+
+    .layout-header-bar {
+        padding: unset;
+        color: #000000;
+        background-color: unset;
+        border-color: unset;
+        border-radius: unset;
+    }
+
+    a:hover {
+        color: #1890ff;
+    }
+
+    .layout.is-page .layout-side {
+        color: rgba(255,255,255,.65);
+        background: #001529;
+    }
+
+        .layout.is-page .layout-side .layout-banner {
+            background: rgba(255, 255, 255, 0.2);
+            justify-content: center;
+        }
 </style>
-
-
-@code{
-
-    bool collapsed;
-
-    void toggle()
-    {
-        collapsed = !collapsed;
-    }
-
-    void OnCollapse(bool isCollapsed)
-    {
-        Console.WriteLine($"Collapsed: {isCollapsed}");
-    }
-
-}
