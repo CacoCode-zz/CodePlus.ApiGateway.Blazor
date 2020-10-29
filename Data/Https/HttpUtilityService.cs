@@ -19,8 +19,9 @@ namespace CodePlus.Blazor.Data.Https
             _httpClient = httpFactory.CreateClient(HttpClientName);
         }
 
-        public async Task<T> PostAsync<T>(string uri, object data = null, string token = null) where T : class
+        public async Task<HttpResponseResult<T>> PostAsync<T>(string uri, object data = null, string token = null) where T : class
         {
+            var httpResponseResult = new HttpResponseResult<T>();
             _httpClient.DefaultRequestHeaders.Clear();
             var jsonData = JsonConvert.SerializeObject(data);
             _httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
@@ -35,12 +36,13 @@ namespace CodePlus.Blazor.Data.Https
             {
                 string readAsString = await response.Content.ReadAsStringAsync();
                 var result = JsonConvert.DeserializeObject<T>(readAsString);
-                return result;
+                httpResponseResult.Result = result;
             }
             else
             {
-                throw new ApplicationException();
+                httpResponseResult.HttpResponseMessages = await response.Content.ReadAsStringAsync();
             }
+            return httpResponseResult;
         }
 
         public async Task<T> GetAsync<T>(string uri, string token = null) where T : class

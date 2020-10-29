@@ -25,12 +25,22 @@ namespace CodePlus.Blazor.Data.Ocelots
             return data;
         }
 
-        public async Task<FileConfiguration> SetConfig(string routeConfig)
+        public async Task<HttpResponseResult<FileConfiguration>> SetConfig(string routeConfig)
         {
             var routeObject = JsonConvert.DeserializeObject<FileRoute>(routeConfig);
-            var oldConfig = await GetConfig();
+            var tokenInfo = await GetToken();
+            var oldConfig = await _httpUtilityService.GetAsync<FileConfiguration>("/administration/configuration", tokenInfo?.AccessToken);
             oldConfig.Routes.Add(routeObject);
-            var result = await _httpUtilityService.PostAsync<FileConfiguration>("/administration/configuration", oldConfig);
+            var result = await _httpUtilityService.PostAsync<FileConfiguration>("/administration/configuration", oldConfig, tokenInfo?.AccessToken);
+            return result;
+        }
+
+        public async Task<HttpResponseResult<FileConfiguration>> SetConfig(FileRoute route)
+        {
+            var tokenInfo = await GetToken();
+            var oldConfig = await _httpUtilityService.GetAsync<FileConfiguration>("/administration/configuration", tokenInfo?.AccessToken);
+            oldConfig.Routes.Add(route);
+            var result = await _httpUtilityService.PostAsync<FileConfiguration>("/administration/configuration", oldConfig, tokenInfo?.AccessToken);
             return result;
         }
 

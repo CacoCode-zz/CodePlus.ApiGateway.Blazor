@@ -9,7 +9,7 @@ namespace CodePlus.Blazor.Data.Https
     {
         string HttpClientName { get; set; }
 
-        Task<T> PostAsync<T>(string uri, object data = null, string token = null) where T : class;
+        Task<HttpResponseResult<T>> PostAsync<T>(string uri, object data = null, string token = null) where T : class;
 
         Task<T> GetAsync<T>(string uri, string token = null) where T : class;
 

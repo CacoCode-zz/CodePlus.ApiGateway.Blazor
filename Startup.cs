@@ -15,7 +15,6 @@ using Ocelot.Administration;
 using Autofac;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
-using CodePlus.Blazor.Extensions;
 
 namespace CodePlus.Blazor
 {
@@ -41,6 +40,7 @@ namespace CodePlus.Blazor
             services.AddCors(options =>
                 options.AddPolicy(DefaultCorsPolicy, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
             );
+            RedisHelper.Initialization(new CSRedis.CSRedisClient(Configuration["Redis:Configuration"]));
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddAntDesign();
@@ -70,7 +70,6 @@ namespace CodePlus.Blazor
             app.UseStaticFiles();
 
             app.UseRouting();
-            app.UseOceotAdminMiddleware();
 
             app.UseCors(DefaultCorsPolicy);
             app.UseEndpoints(endpoints =>

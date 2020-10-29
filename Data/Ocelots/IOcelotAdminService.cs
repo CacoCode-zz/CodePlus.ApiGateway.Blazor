@@ -1,4 +1,5 @@
-﻿using Ocelot.Configuration.File;
+﻿using CodePlus.Blazor.Data.Https;
+using Ocelot.Configuration.File;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +11,8 @@ namespace CodePlus.Blazor.Data.Ocelots
     {
         Task<FileConfiguration> GetConfig();
 
-        Task<FileConfiguration> SetConfig(string routeConfig);
+        Task<HttpResponseResult<FileConfiguration>> SetConfig(string routeConfig);
+
+        Task<HttpResponseResult<FileConfiguration>> SetConfig(FileRoute route);
     }
 }
