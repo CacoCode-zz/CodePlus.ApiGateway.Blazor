@@ -40,7 +40,7 @@ namespace CodePlus.Blazor
             services.AddCors(options =>
                 options.AddPolicy(DefaultCorsPolicy, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
             );
-            RedisHelper.Initialization(new CSRedis.CSRedisClient(Configuration["Redis:Configuration"]));
+            //RedisHelper.Initialization(new CSRedis.CSRedisClient(Configuration["Redis:Configuration"]));
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddAntDesign();
