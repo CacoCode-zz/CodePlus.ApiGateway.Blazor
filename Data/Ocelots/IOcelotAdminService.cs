@@ -9,10 +9,16 @@ namespace CodePlus.Blazor.Data.Ocelots
 {
     public interface IOcelotAdminService
     {
-        Task<FileConfiguration> GetConfig();
+        Task<FileConfiguration> GetConfigAsync();
 
-        Task<HttpResponseResult<FileConfiguration>> SetConfig(string routeConfig);
+        Task<HttpResponseResult<FileConfiguration>> SetConfigAsync(string routeConfig);
 
-        Task<HttpResponseResult<FileConfiguration>> SetConfig(FileRoute route);
+        Task<HttpResponseResult<FileConfiguration>> SetConfigAsync(FileRoute route);
+
+        Task<HttpResponseResult<FileConfiguration>> UpdateConfigAsync(FileRoute fileRoute);
+
+        Task<HttpResponseResult<FileRoute>> GetConfigByAsync(string upUrl, string downUrl);
+
+        Task<HttpResponseResult<FileConfiguration>> DeleteConfigAsync(string upUrl, string downUrl);
     }
 }

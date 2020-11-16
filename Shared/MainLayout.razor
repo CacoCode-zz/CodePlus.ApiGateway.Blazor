@@ -19,16 +19,8 @@
     <Sider Collapsible Collapsed=@collapsed NoTrigger OnCollapse="OnCollapse">
         <div class="logo" />
         <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline" DefaultSelectedKeys=@(new[]{"1"})>
-            <MenuItem Key="1" RouterLink="/">
-                <Icon Type="user" Theme="outline" />
-                <span>nav 1</span>
-            </MenuItem>
-            <MenuItem Key="2" RouterLink="/counter">
-                <Icon Type="video-camera" Theme="outline" />
-                <span>nav 2</span>
-            </MenuItem>
-            <MenuItem Key="3" RouterLink="/gatewayconfig">
-                <Icon Type="upload" Theme="outline" />
+            <MenuItem Key="3" RouterLink="/">
+                <Icon Style="font-size:20px" Type="cluster" Theme="outline" />
                 <span>网关配置</span>
             </MenuItem>
         </Menu>

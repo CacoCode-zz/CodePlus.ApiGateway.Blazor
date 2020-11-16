@@ -1,5 +1,245 @@
 ﻿@page "/"
+@using System.Text.Json
+@using CodePlus.Blazor.Data.Ocelots
+@using Ocelot.Configuration.File
 
-<h1>Hello, world!</h1>
+@inject IOcelotAdminService OcelotAdminService
+@inject NotificationService _notice
+@inject MessageService _message
 
-Welcome to your new app.
+<Button Type="primary" OnClick="OpenAdd">添加路由配置</Button>
+
+<Spin Spinning=@_loading>
+    @*<Alert Message="@_ocelotConfiguration.Routes.Count" Class="table-message" Type="@AlertType.Info" />*@
+    <Table Class="route-table"
+           DataSource="@_ocelotConfiguration.Routes.ToArray()">
+        <Column @bind-Field="@context.DownstreamPathTemplate" Title="下游地址模板"></Column>
+        <Column @bind-Field="@context.UpstreamPathTemplate" Title="上游地址模板"></Column>
+        <Column @bind-Field="@context.DownstreamHostAndPorts" Title="下游IP端口">
+            @foreach (var hostInfo in context.DownstreamHostAndPorts)
+            {
+                var color = "green";
+                <Tag Color="@color">@hostInfo.Host:@hostInfo.Port</Tag>
+            }
+        </Column>
+        <Column @bind-Field="@context.UpstreamHttpMethod" Title="上游Http请求">
+            @foreach (var method in context.UpstreamHttpMethod)
+            {
+                var color = "orange-inverse";
+                if (method.ToLower() == "post")
+                {
+                    color = "green-inverse";
+                }
+                if (method.ToLower() == "get")
+                {
+                    color = "blue-inverse";
+                }
+                if (method.ToLower() == "delete")
+                {
+                    color = "red-inverse";
+                }
+                <Tag Color="@color">@method</Tag>
+            }
+        </Column>
+        <ActionColumn Title="操作">
+            <Space Size="middle">
+                <SpaceItem>
+                    <Button Type="link" OnClick="_=>Edit(context.UpstreamPathTemplate,context.DownstreamPathTemplate)" Block>修改</Button>
+                </SpaceItem>
+                <SpaceItem>
+                    <Popconfirm Placement="@PlacementType.TopRight" Title="@("是否确定删除此项")" OkText="@("确定")" CancelText="@("取消")" OnConfirm="_=>Delete(context.UpstreamPathTemplate,context.DownstreamPathTemplate)">
+                        <Button Type="link" Danger>删除</Button>
+                    </Popconfirm>
+                </SpaceItem>
+            </Space>
+        </ActionColumn>
+    </Table>
+</Spin>
+
+<div>
+    <Drawer Closable="true" Width="720" Visible="_visible" Title='("网关路由信息")' OnClose="_=>Close()">
+        <Template style="height:90%">
+            <Row Gutter="16">
+                <AntDesign.Col Span="24">
+                    <Text>上游地址模板</Text>
+                    <Input Class="config-input" Placeholder="请输入上游地址模板" Disabled="_isEdit" TValue="string" @bind-Value="@model.UpstreamPathTemplate"></Input>
+                </AntDesign.Col>
+            </Row>
+            <br />
+            <Row Gutter="16">
+                <AntDesign.Col Span="24">
+                    <Text>下游地址模板</Text>
+                    <Input Class="config-input" Placeholder="请输入下游地址模板" Disabled="_isEdit" TValue="string" @bind-Value="@model.DownstreamPathTemplate"></Input>
+                </AntDesign.Col>
+            </Row>
+            <br />
+            <Row Gutter="16">
+                <AntDesign.Col Span="12">
+                    <Text>上游地址HTTP方法</Text> <Text Type="warning">（多个用英文逗号隔开）</Text>
+                    <Input Class="config-input" Placeholder="请输入上游地址HTTP方法" TValue="string" @bind-Value="@upstreamHttpMethod" />
+                </AntDesign.Col>
+                <AntDesign.Col Span="12">
+                    <Text>下游地址HTTP方法</Text>
+                    <Input Class="config-input" Placeholder="请输入下游地址HTTP方法" TValue="string" @bind-Value="@model.DownstreamHttpMethod" />
+                </AntDesign.Col>
+            </Row>
+            <br />
+            <Row Gutter="16">
+                <AntDesign.Col Span="12">
+                    <Text>下游IP</Text>
+                    <Input Class="config-input" Placeholder="请输入下游IP" TValue="string" @bind-Value="@fileHostAndPort.Host" />
+                </AntDesign.Col>
+                <AntDesign.Col Span="12">
+                    <Text>下游端口</Text>
+                    <Input Class="config-input" Placeholder="请输入下游端口" TValue="int" @bind-Value="@fileHostAndPort.Port" />
+                </AntDesign.Col>
+            </Row>
+            <br />
+            <Row>
+                <AntDesign.Col Span="18">
+
+                </AntDesign.Col>
+                <AntDesign.Col Span="6" Style="text-align: end;">
+                    <Button Type="default" OnClick="Close">返回</Button>
+                    <Button Type="primary" OnClick="_=>Submit()">提交</Button>
+                </AntDesign.Col>
+            </Row>
+
+        </Template>
+    </Drawer>
+</div>
+
+<style>
+    .route-table {
+        margin: 10px 0;
+    }
+
+    .table-message {
+        margin: 10px 0 0 0;
+    }
+
+    .ant-input {
+        margin-top: 8px;
+    }
+</style>
+
+@code {
+
+    private bool _loading = true;
+
+    private bool _visible = false;
+
+    private bool _isEdit = false;
+
+    private string upstreamHttpMethod = "";
+
+    private string downstreamHttpMethod = "";
+
+    private FileConfiguration _ocelotConfiguration = new FileConfiguration();
+
+    private FileRoute model = new FileRoute();
+
+    private FileHostAndPort fileHostAndPort = new FileHostAndPort();
+
+    protected override async Task OnInitializedAsync()
+    {
+        _ocelotConfiguration = await OcelotAdminService.GetConfigAsync();
+        _loading = false;
+    }
+
+    private void Close()
+    {
+        upstreamHttpMethod = "";
+        downstreamHttpMethod = "";
+        model = new FileRoute();
+        fileHostAndPort = new FileHostAndPort();
+        this._visible = false;
+    }
+
+    private void OpenAdd()
+    {
+        this._isEdit = false;
+        this._visible = true;
+    }
+
+    private async Task Submit()
+    {
+        if (_isEdit)
+        {
+            await Update();
+        }
+        else
+        {
+            await Create();
+        }
+
+    }
+
+    private async Task Delete(string upUrl, string downUrl)
+    {
+        var result = await OcelotAdminService.DeleteConfigAsync(upUrl, downUrl);
+        if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+        {
+            await OpenNotificationAsync("删除失败", result.HttpResponseMessages, NotificationType.Error);
+        }
+        else
+        {
+            _message.Success("删除成功");
+            _ocelotConfiguration = result.Result;
+        }
+    }
+
+    private async Task Edit(string upUrl, string downUrl)
+    {
+        var data = await OcelotAdminService.GetConfigByAsync(upUrl, downUrl);
+        model = data.Result;
+        upstreamHttpMethod = string.Join(',', model.UpstreamHttpMethod);
+        fileHostAndPort = model.DownstreamHostAndPorts.FirstOrDefault();
+        this._isEdit = true;
+        this._visible = true;
+    }
+
+    private async Task Create()
+    {
+        model.UpstreamHttpMethod = upstreamHttpMethod.Split(',').ToList();
+        model.DownstreamHostAndPorts.Add(fileHostAndPort);
+        var result = await OcelotAdminService.SetConfigAsync(model);
+        if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+        {
+            await OpenNotificationAsync("创建失败", result.HttpResponseMessages, NotificationType.Error);
+        }
+        else
+        {
+            _ocelotConfiguration = result.Result;
+            _message.Success("创建成功");
+            Close();
+        }
+    }
+
+    private async Task Update()
+    {
+        model.UpstreamHttpMethod = upstreamHttpMethod.Split(',').ToList();
+        model.DownstreamHostAndPorts = new List<FileHostAndPort> { fileHostAndPort };
+        var result = await OcelotAdminService.UpdateConfigAsync(model);
+        if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+        {
+            await OpenNotificationAsync("修改失败", result.HttpResponseMessages, NotificationType.Error);
+        }
+        else
+        {
+            _ocelotConfiguration = result.Result;
+            _message.Success("修改成功");
+            Close();
+        }
+    }
+
+    private async Task OpenNotificationAsync(string title, string description, NotificationType type)
+    {
+        await _notice.Open(new NotificationConfig()
+        {
+            Message = title,
+            Description = description,
+            NotificationType = type
+        });
+    }
+}
