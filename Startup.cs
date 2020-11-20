@@ -1,11 +1,9 @@
 using System;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using CodePlus.Blazor.Data;
 using Serilog;
 using Microsoft.Extensions.Logging;
 using Ocelot.DependencyInjection;
@@ -13,8 +11,7 @@ using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 using Ocelot.Administration;
 using Autofac;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Routing;
+using CodePlus.Blazor.Extensions;
 
 namespace CodePlus.Blazor
 {
@@ -41,6 +38,7 @@ namespace CodePlus.Blazor
                 options.AddPolicy(DefaultCorsPolicy, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
             );
             //RedisHelper.Initialization(new CSRedis.CSRedisClient(Configuration["Redis:Configuration"]));
+            services.AddRedis(Configuration);
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddAntDesign();
@@ -77,7 +75,7 @@ namespace CodePlus.Blazor
                 endpoints.MapBlazorHub();
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapFallbackToPage("{*path:regex(^(?![administration|api]).*$)}", "/_Host");
+                endpoints.MapFallbackToPage(Configuration["EndpointFallbackRegex"], "/_Host");
             });
             app.UseOcelot().Wait();
 

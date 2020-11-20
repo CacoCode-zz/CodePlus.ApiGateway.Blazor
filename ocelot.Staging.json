@@ -1,0 +1,221 @@
+{
+  "Routes": [
+    // CLOUDPLATFORM 8083
+    {
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/platform/api/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8083
+        }
+      ]
+
+    },
+    {
+      "DownstreamPathTemplate": "/AbpUserConfiguration/GetAll",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/platform/AbpUserConfiguration/GetAll",
+      "UpstreamHttpMethod": [ "Get" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8083
+        }
+      ]
+    },
+    // SDMS 10000
+    {
+      "DownstreamPathTemplate": "/api/binary/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/sdms/api/binary/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 10000
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/extraction/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/sdms/api/extraction/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 10000
+        }
+      ]
+    },
+    // PHARMLIMS-ANYCOLLECT 8200
+    {
+      "DownstreamPathTemplate": "/api/any-collect/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/api/any-collect/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8200
+        }
+      ]
+    },
+    // PHARMLIMS-QM 8201
+    {
+      "DownstreamPathTemplate": "/api/qm/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/api/qm/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8201
+        }
+      ]
+    },
+    // PHARMLIMS-MAIN 6003
+    {
+      "DownstreamPathTemplate": "/app/v1/AppUsers/add",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/app/v1/AppUsers/add",
+      "UpstreamHttpMethod": [ "Post" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 6003
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/_inporttemp/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/_inporttemp/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 6003
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/public/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/public/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 6003
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/_temp/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/_temp/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 6003
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/record/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/record/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 6003
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/pharmlims/api/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 6003
+        }
+      ]
+    },
+    // BIOBANK-MAIN 8003
+    {
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/biobank/api/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8003
+        }
+      ]
+    },
+    {
+      "DownstreamPathTemplate": "/MessageHub/hubs",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/biobank/MessageHub/hubs",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8003
+        }
+      ]
+    },
+    // BIOBANK-USERCENTER 8004
+    {
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/usercenter/api/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8004
+        }
+      ]
+    },
+    // BIOBANK-ADMIN 8005
+    {
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/admin/api/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 8005
+        }
+      ]
+    },
+    // DMPK-IDENTITY 9003
+    {
+      "DownstreamPathTemplate": "/api/{url}",
+      "DownstreamScheme": "http",
+      "UpstreamPathTemplate": "/identity/api/{url}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Delete", "Put" ],
+      "DownstreamHostAndPorts": [
+        {
+          "Host": "192.168.5.84",
+          "Port": 9003
+        }
+      ]
+    }
+  ],
+  "GlobalConfiguration": {
+    "BaseUrl": "http://localhost:57595"
+  }
+}
