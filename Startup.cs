@@ -12,6 +12,9 @@ using Ocelot.Provider.Consul;
 using Ocelot.Administration;
 using Autofac;
 using CodePlus.Blazor.Extensions;
+using CodePlus.Blazor.HealthChecks;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 
 namespace CodePlus.Blazor
 {
@@ -46,6 +49,9 @@ namespace CodePlus.Blazor
                .AddConsul()
                .AddAdministration("/administration", "secret");
             services.AddServerSideBlazor();
+            services.AddHealthChecks()
+                .AddRedis(Configuration["Redis"]);
+            services.AddHealthChecksUI().AddInMemoryStorage(); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -75,6 +81,15 @@ namespace CodePlus.Blazor
                 endpoints.MapBlazorHub();
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
+                endpoints.MapHealthChecksUI(setup =>
+                {
+                    setup.AddCustomStylesheet("dotnet.css");
+                });
+                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions
+                {
+                    Predicate = _ => true,
+                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+                });
                 endpoints.MapFallbackToPage(Configuration["EndpointFallbackRegex"], "/_Host");
             });
             app.UseOcelot().Wait();
