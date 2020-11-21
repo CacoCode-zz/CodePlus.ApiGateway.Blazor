@@ -38,4 +38,8 @@
     <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="SQLites\" />
+  </ItemGroup>
+
 </Project>

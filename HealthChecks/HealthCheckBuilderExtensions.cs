@@ -12,11 +12,7 @@ namespace CodePlus.Blazor.HealthChecks
         public static IHealthChecksBuilder AddRedisCheck(this IHealthChecksBuilder builder, string name, string redisConnection, HealthStatus? failureStatus = default,
             IEnumerable<string> tags = default)
         {
-            return builder.Add(new HealthCheckRegistration(
-                name,
-                sp => new RedisHealthCheck(redisConnection),
-                failureStatus,
-                tags));
+            throw new NotImplementedException();
         }
     }
 }

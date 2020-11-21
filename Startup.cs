@@ -49,8 +49,7 @@ namespace CodePlus.Blazor
                .AddConsul()
                .AddAdministration("/administration", "secret");
             services.AddServerSideBlazor();
-            services.AddHealthChecks()
-                .AddRedis(Configuration["Redis"]);
+            services.AddHealthChecks(Configuration);
             services.AddHealthChecksUI().AddSqliteStorage(Configuration["SQLite:ConnectionString"]); 
         }
 
