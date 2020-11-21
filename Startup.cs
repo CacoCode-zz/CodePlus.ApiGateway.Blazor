@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -82,7 +83,7 @@ namespace CodePlus.Blazor
                 endpoints.MapControllers();
                 endpoints.MapHealthChecksUI(setup =>
                 {
-                    setup.AddCustomStylesheet("dotnet.css");
+                    setup.AddCustomStylesheet(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "dotnet.css"));
                 });
                 endpoints.MapHealthChecks("/healthz", new HealthCheckOptions
                 {

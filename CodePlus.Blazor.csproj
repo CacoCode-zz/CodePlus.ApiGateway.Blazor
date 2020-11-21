@@ -10,13 +10,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="dotnet.css" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <EmbeddedResource Include="wwwroot\dotnet.css">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
     <Content Include="SQLites\.gitkeep">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\dotnet.css" />
   </ItemGroup>
 
   <ItemGroup>
