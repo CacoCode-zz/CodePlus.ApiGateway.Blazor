@@ -1,8 +1,12 @@
 ﻿:root {
-    --primaryColor: #68217a;
+    --primaryColor: #001529;
     --secondaryColor: #f4f4f4;
-    --bgMenuActive: #8e47a0;
-    --bgButton: #68217a;
-    --logoImageUrl: url('https://upload.wikimedia.org/wikipedia/commons/thumb/e/e3/.NET_Foundation_Logo.svg/1200px-.NET_Foundation_Logo.svg.png');
+    --bgMenuActive: #1890ff;
+    --bgButton: #1890ff;
+    --logoImageUrl: url(/img/logo-new.png);
     --bgAside: var(--primaryColor);
+    --lightColor: #f0f2f5;
+    --dangerColor: f5222d;
+    --warningColor: #fa8c16;
+    --successColor: #52c41a;
 }

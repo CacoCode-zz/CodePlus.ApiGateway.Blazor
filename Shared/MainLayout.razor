@@ -1,26 +1,35 @@
 ﻿@inherits LayoutComponentBase
 @using AntDesign
-
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
 @*<div class="sidebar">
-    <NavMenu />
-</div>
-
-<div class="main">
-    <div class="top-row px-4">
-        <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        <NavMenu />
     </div>
 
-    <div class="content px-4">
-        @Body
-    </div>
-</div>*@
+    <div class="main">
+        <div class="top-row px-4">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <div class="content px-4">
+            @Body
+        </div>
+    </div>*@
 
 <Layout>
     <Sider Collapsible Collapsed=@collapsed NoTrigger OnCollapse="OnCollapse">
-        <div class="logo" />
+
+        @if (collapsed)
+        {
+            <div class="logo" />
+        }
+        else
+        {
+            <div class="logo-color" />
+        }
         <Menu Theme="MenuTheme.Dark" Mode="MenuMode.Inline" DefaultSelectedKeys=@(new[]{"1"})>
             <MenuItem Key="3" RouterLink="/">
-                <Icon Style="font-size:20px" Type="cluster" Theme="outline" />
+                <Icon Style="font-size:20px" Type="global" Theme="outline" />
                 <span>网关配置</span>
             </MenuItem>
         </Menu>
@@ -35,6 +44,8 @@
             {
                 <Icon Type="menu-fold" Theme="outline" Class="trigger" OnClick="toggle" />
             }
+            <Icon Type="github" Theme="outline" Class="header-menu header-menu-first" OnClick="goGithub" />
+            <Icon Type="safety" Theme="outline" Class="header-menu" OnClick="goHealthUI" />
         </Header>
         <Content Class="site-layout-background" Style="margin: 24px 16px;padding: 24px;min-height: 88vh;">
             @Body
@@ -44,7 +55,7 @@
 
 <style>
     .trigger {
-        font-size: 18px;
+        font-size: 20px;
         line-height: 64px;
         padding: 0 24px;
         cursor: pointer;
@@ -55,14 +66,49 @@
             color: #1890ff;
         }
 
+    .logo-color {
+        height: 40px;
+        /*background: rgba(255, 255, 255, 0.2);*/
+        background-image: url(../img/logo-color.png);
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+        margin: 10px;
+    }
+
     .logo {
-        height: 32px;
-        background: rgba(255, 255, 255, 0.2);
-        margin: 16px;
+        height: 40px;
+        /*background: rgba(255, 255, 255, 0.2);*/
+        background-image: url(../img/logo.png);
+        background-repeat: no-repeat;
+        background-size: contain;
+        background-position: center;
+        margin: 10px;
+    }
+
+    .header-menu {
+        font-size: 26px;
+        line-height: 62px;
+        padding: 0 24px;
+        cursor: pointer;
+        transition: color 0.3s;
+        float: right;
+    }
+
+        .header-menu:hover {
+            color: #1890ff;
+        }
+
+    .header-menu-first {
+        margin-right: 26px;
     }
 
     .site-layout .site-layout-background {
         background: #fff;
+    }
+
+    .ant-layout {
+        height: 100%;
     }
 </style>
 
@@ -79,6 +125,16 @@
     void OnCollapse(bool isCollapsed)
     {
         Console.WriteLine($"Collapsed: {isCollapsed}");
+    }
+
+    async Task goGithub()
+    {
+        await JSRuntime.InvokeAsync<object>("open", "https://github.com/CacoCode/CodePlus.ApiGateway.Blazor", "_blank");
+    }
+
+    async Task goHealthUI()
+    {
+        await JSRuntime.InvokeAsync<object>("open", "/healthchecks-ui", "_blank");
     }
 
 }
