@@ -6,7 +6,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="SQLites\.gitkeep" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="dotnet.css" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="SQLites\.gitkeep">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
   <ItemGroup>
@@ -36,10 +46,6 @@
     <PackageReference Include="Serilog.Sinks.Async" Version="1.4.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="4.1.0" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="4.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="SQLites\" />
   </ItemGroup>
 
 </Project>
