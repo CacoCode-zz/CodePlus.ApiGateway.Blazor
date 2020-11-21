@@ -343,4 +343,4 @@ Logs/
 bin/
 .vs/
 obj/
-SQLites/
+SQLites/*db
