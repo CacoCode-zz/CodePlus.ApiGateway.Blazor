@@ -38,6 +38,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="3.1.2" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.InMemory.Storage" Version="3.1.2" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.SQLite.Storage" Version="3.1.2" />
+    <PackageReference Include="AspNetCore.HealthChecks.UI.SqlServer.Storage" Version="3.1.2" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="7.0.2" />
     <PackageReference Include="CSRedisCore" Version="3.6.5" />
     <PackageReference Include="Ocelot" Version="16.0.1" />

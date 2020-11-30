@@ -51,7 +51,7 @@ namespace CodePlus.Blazor
                .AddAdministration("/administration", "secret");
             services.AddServerSideBlazor();
             services.AddHealthChecks(Configuration);
-            services.AddHealthChecksUI().AddSqliteStorage(Configuration["SQLite:ConnectionString"]); 
+            services.AddHealthChecksUI().AddSqlServerStorage(Configuration.GetConnectionString("Default")); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
