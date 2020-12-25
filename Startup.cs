@@ -56,6 +56,7 @@ namespace CodePlus.Blazor
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ILogger<Startup> logger)
         {
+            RedisHelper.Del("OcelotToken");
             loggerFactory.AddSerilog();
             if (env.IsDevelopment())
             {
@@ -91,6 +92,7 @@ namespace CodePlus.Blazor
                 });
                 endpoints.MapFallbackToPage(Configuration["EndpointFallbackRegex"], "/_Host");
             });
+            app.UseWebSockets();
             app.UseOcelot().Wait();
 
             logger.LogInformation($"Environment:{env.EnvironmentName}{Environment.NewLine}" +
