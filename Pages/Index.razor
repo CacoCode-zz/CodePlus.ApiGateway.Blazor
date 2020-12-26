@@ -18,9 +18,11 @@
         <Column @bind-Field="@context.DownstreamHostAndPorts" Title="下游IP端口">
             @foreach (var hostInfo in context.DownstreamHostAndPorts)
             {
-                var color = "green";
-                <Tag Color="@color">@hostInfo.Host:@hostInfo.Port</Tag>
+                <Tag Color="green">@hostInfo.Host:@hostInfo.Port</Tag>
             }
+        </Column>
+        <Column @bind-Field="@context.DownstreamScheme" Title="下游Scheme">
+            <Tag Color="blue">@context.DownstreamScheme</Tag>
         </Column>
         <Column @bind-Field="@context.UpstreamHttpMethod" Title="上游Http请求">
             @foreach (var method in context.UpstreamHttpMethod)
@@ -92,6 +94,13 @@
                 <AntDesign.Col Span="12">
                     <Text>下游端口</Text>
                     <Input Class="config-input" Placeholder="请输入下游端口" TValue="int" @bind-Value="@fileHostAndPort.Port" />
+                </AntDesign.Col>
+            </Row>
+            <br />
+            <Row Gutter="16">
+                <AntDesign.Col Span="12">
+                    <Text>下游Scheme</Text> <Text Type="warning">（有效参数：https | http | ws）</Text>
+                    <Input Class="config-input" Placeholder="请输入下游IP" TValue="string" @bind-Value="@model.DownstreamScheme" />
                 </AntDesign.Col>
             </Row>
             <br />
