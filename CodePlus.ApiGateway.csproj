@@ -63,6 +63,7 @@
 
   <ItemGroup>
     <Folder Include="Properties\PublishProfiles\" />
+    <Folder Include="docs\" />
   </ItemGroup>
 
   <ItemGroup>
