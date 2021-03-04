@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace CodePlus.Blazor.Data.Ocelots.Dto
+namespace CodePlus.ApiGateway.Data.Ocelots.Dto
 {
     public class OcelotIdentity
     {

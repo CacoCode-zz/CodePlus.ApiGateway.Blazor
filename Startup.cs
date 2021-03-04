@@ -1,23 +1,22 @@
 using System;
 using System.IO;
+using Autofac;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Serilog;
 using Microsoft.Extensions.Logging;
+using Ocelot.Administration;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
-using Ocelot.Administration;
-using Autofac;
-using CodePlus.Blazor.Extensions;
-using CodePlus.Blazor.HealthChecks;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
 
-namespace CodePlus.Blazor
+namespace CodePlus.ApiGateway
 {
     public class Startup
     {
@@ -41,22 +40,26 @@ namespace CodePlus.Blazor
             services.AddCors(options =>
                 options.AddPolicy(DefaultCorsPolicy, p => p.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod())
             );
-            services.AddRedis(Configuration);
+            services.Configure<CookiePolicyOptions>(options =>
+            {
+                options.CheckConsentNeeded = context => true;
+                options.MinimumSameSitePolicy = SameSiteMode.None;
+            });
+            services.AddHttpContextAccessor();
+            services.AddScoped<HttpContextAccessor>();
+
+            //services.AddRedis(Configuration);
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddAntDesign();
             services.AddOcelot(Configuration)
                .AddConsul()
-               .AddAdministration("/administration", "secret");
-            services.AddServerSideBlazor();
-            services.AddHealthChecks(Configuration);
-            services.AddHealthChecksUI().AddSqlServerStorage(Configuration.GetConnectionString("Default")); 
+               .AddAdministration("/administration", Configuration["OcelotSecret"]); 
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerFactory loggerFactory, ILogger<Startup> logger)
         {
-            RedisHelper.Del("OcelotToken");
             loggerFactory.AddSerilog();
             if (env.IsDevelopment())
             {
@@ -73,6 +76,8 @@ namespace CodePlus.Blazor
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
+            app.UseCookiePolicy();
+
             app.UseRouting();
 
             app.UseCors(DefaultCorsPolicy);
@@ -81,15 +86,6 @@ namespace CodePlus.Blazor
                 endpoints.MapBlazorHub();
                 endpoints.MapRazorPages();
                 endpoints.MapControllers();
-                endpoints.MapHealthChecksUI(setup =>
-                {
-                    setup.AddCustomStylesheet(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "dotnet.css"));
-                });
-                endpoints.MapHealthChecks("/healthz", new HealthCheckOptions
-                {
-                    Predicate = _ => true,
-                    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-                });
                 endpoints.MapFallbackToPage(Configuration["EndpointFallbackRegex"], "/_Host");
             });
             app.UseWebSockets();

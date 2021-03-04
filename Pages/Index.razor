@@ -1,16 +1,18 @@
 ﻿@page "/"
 @using System.Text.Json
-@using CodePlus.Blazor.Data.Ocelots
 @using Ocelot.Configuration.File
+@using CodePlus.ApiGateway.Data.Ocelots
+@using CodePlus.ApiGateway.Data.Logins
 
 @inject IOcelotAdminService OcelotAdminService
 @inject NotificationService _notice
 @inject MessageService _message
+@inject ModalService _modal
+@inject IJSRuntime JSRuntime
+
 
 <Button Type="primary" OnClick="OpenAdd">添加路由配置</Button>
-
 <Spin Spinning=@_loading>
-    @*<Alert Message="@_ocelotConfiguration.Routes.Count" Class="table-message" Type="@AlertType.Info" />*@
     <Table Class="route-table"
            DataSource="@_ocelotConfiguration.Routes.ToArray()">
         <Column @bind-Field="@context.DownstreamPathTemplate" Title="下游地址模板"></Column>
@@ -99,7 +101,7 @@
             <br />
             <Row Gutter="16">
                 <AntDesign.Col Span="12">
-                    <Text>下游Scheme</Text> <Text Type="warning">（有效参数：https | http | ws）</Text>
+                    <Text>下游Scheme</Text> <Text Type="warning">（有效参数：https|http|ws）</Text>
                     <Input Class="config-input" Placeholder="请输入下游IP" TValue="string" @bind-Value="@model.DownstreamScheme" />
                 </AntDesign.Col>
             </Row>
@@ -131,7 +133,6 @@
         margin-top: 8px;
     }
 </style>
-
 @code {
 
     private bool _loading = true;
@@ -152,8 +153,25 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _ocelotConfiguration = await OcelotAdminService.GetConfigAsync();
-        _loading = false;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var token = await GetToken();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            await OpenTemplate();
+        }
+        else
+        {
+            if (firstRender)
+            {
+                _ocelotConfiguration = await OcelotAdminService.GetConfigAsync(token);
+                _loading = false;
+            }
+            await InvokeAsync(StateHasChanged);
+        }
+
     }
 
     private void Close()
@@ -186,42 +204,69 @@
 
     private async Task Delete(string upUrl, string downUrl)
     {
-        var result = await OcelotAdminService.DeleteConfigAsync(upUrl, downUrl);
-        if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+        var token = await GetToken();
+        if (string.IsNullOrWhiteSpace(token))
         {
-            await OpenNotificationAsync("删除失败", result.HttpResponseMessages, NotificationType.Error);
+            _message.Error("密钥过期请重新登录");
+            await OpenTemplate();
         }
         else
         {
-            _message.Success("删除成功");
-            _ocelotConfiguration = result.Result;
+            var result = await OcelotAdminService.DeleteConfigAsync(upUrl, downUrl, token);
+            if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+            {
+                await OpenNotificationAsync("删除失败", result.HttpResponseMessages, NotificationType.Error);
+            }
+            else
+            {
+                _message.Success("删除成功");
+                _ocelotConfiguration = result.Result;
+            }
         }
     }
 
     private async Task Edit(string upUrl, string downUrl)
     {
-        var data = await OcelotAdminService.GetConfigByAsync(upUrl, downUrl);
-        model = data.Result;
-        upstreamHttpMethod = string.Join(',', model.UpstreamHttpMethod);
-        fileHostAndPort = model.DownstreamHostAndPorts.FirstOrDefault();
-        this._isEdit = true;
-        this._visible = true;
+        var token = await GetToken();
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            _message.Error("密钥过期请重新登录");
+            await OpenTemplate();
+        }
+        else
+        {
+            var data = await OcelotAdminService.GetConfigByAsync(upUrl, downUrl, token);
+            model = data.Result;
+            upstreamHttpMethod = string.Join(',', model.UpstreamHttpMethod);
+            fileHostAndPort = model.DownstreamHostAndPorts.FirstOrDefault();
+            this._isEdit = true;
+            this._visible = true;
+        }
     }
 
     private async Task Create()
     {
         model.UpstreamHttpMethod = upstreamHttpMethod.Split(',').ToList();
         model.DownstreamHostAndPorts.Add(fileHostAndPort);
-        var result = await OcelotAdminService.SetConfigAsync(model);
-        if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+        var token = await GetToken();
+        if (string.IsNullOrWhiteSpace(token))
         {
-            await OpenNotificationAsync("创建失败", result.HttpResponseMessages, NotificationType.Error);
+            _message.Error("密钥过期请重新登录");
+            await OpenTemplate();
         }
         else
         {
-            _ocelotConfiguration = result.Result;
-            _message.Success("创建成功");
-            Close();
+            var result = await OcelotAdminService.SetConfigAsync(model, token);
+            if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+            {
+                await OpenNotificationAsync("创建失败", result.HttpResponseMessages, NotificationType.Error);
+            }
+            else
+            {
+                _ocelotConfiguration = result.Result;
+                _message.Success("创建成功");
+                Close();
+            }
         }
     }
 
@@ -229,16 +274,25 @@
     {
         model.UpstreamHttpMethod = upstreamHttpMethod.Split(',').ToList();
         model.DownstreamHostAndPorts = new List<FileHostAndPort> { fileHostAndPort };
-        var result = await OcelotAdminService.UpdateConfigAsync(model);
-        if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+        var token = await GetToken();
+        if (string.IsNullOrWhiteSpace(token))
         {
-            await OpenNotificationAsync("修改失败", result.HttpResponseMessages, NotificationType.Error);
+            _message.Error("密钥过期请重新登录");
+            await OpenTemplate();
         }
         else
         {
-            _ocelotConfiguration = result.Result;
-            _message.Success("修改成功");
-            Close();
+            var result = await OcelotAdminService.UpdateConfigAsync(model, token);
+            if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
+            {
+                await OpenNotificationAsync("修改失败", result.HttpResponseMessages, NotificationType.Error);
+            }
+            else
+            {
+                _ocelotConfiguration = result.Result;
+                _message.Success("修改成功");
+                Close();
+            }
         }
     }
 
@@ -250,5 +304,45 @@
             Description = description,
             NotificationType = type
         });
+    }
+
+    private ModalRef _modalRef;
+
+    private async Task OpenTemplate()
+    {
+        var templateOptions = new LoginInputDto();
+        var modalConfig = new ModalOptions();
+        modalConfig.Title = "登录";
+        modalConfig.MaskClosable = false;
+        modalConfig.Footer = null;
+        modalConfig.Closable = false;
+        modalConfig.Keyboard = false;
+        modalConfig.AfterClose = async () =>
+        {
+            var token =await GetToken();
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                _message.Error("密钥过期请重新登录");
+                await OpenTemplate();
+            }
+            else {
+                _ocelotConfiguration = await OcelotAdminService.GetConfigAsync(token);
+                _loading = false;
+                await InvokeAsync(StateHasChanged);
+            }
+        };
+
+        _modalRef = await _modal
+            .CreateModalAsync<Login, LoginInputDto>
+            (modalConfig, templateOptions);
+    }
+
+    private async Task<string> GetToken()
+    {
+        var token = await JSRuntime.InvokeAsync<string>(
+            "gatewayJsFunctions.getCookie",
+            "AccessToken");
+        return token;
+
     }
 }

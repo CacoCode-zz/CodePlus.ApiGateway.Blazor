@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
-namespace CodePlus.Blazor.Data.Ocelots.Dto
+namespace CodePlus.ApiGateway.Data.Ocelots.Dto
 {
     public class OcelotAdminToken
     {

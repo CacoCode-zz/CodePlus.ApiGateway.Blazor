@@ -1,58 +1,60 @@
-﻿using CodePlus.Blazor.Data.Https;
-using CodePlus.Blazor.Data.Ocelots.Dto;
-using Ocelot.Configuration.File;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Ocelot.Configuration.File;
+using CodePlus.ApiGateway.Data.Https;
+using CodePlus.ApiGateway.Data.Logins;
+using CodePlus.ApiGateway.Data.Ocelots.Dto;
 
-namespace CodePlus.Blazor.Data.Ocelots
+namespace CodePlus.ApiGateway.Data.Ocelots
 {
     public class OcelotAdminService : IOcelotAdminService
     {
         private readonly IHttpUtilityService _httpUtilityService;
+        private readonly IConfiguration _configuration;
 
-        public OcelotAdminService(IHttpUtilityService httpUtilityService)
+
+        public OcelotAdminService(IHttpUtilityService httpUtilityService, IConfiguration configuration)
         {
             _httpUtilityService = httpUtilityService;
+            _configuration = configuration;
         }
 
-        public async Task<FileConfiguration> GetConfigAsync()
+        public async Task<FileConfiguration> GetConfigAsync(string token)
         {
-            var tokenInfo = await GetTokenAsync();
-            var data = await GetConfiguration(tokenInfo);
+            var data = await GetConfiguration(token);
             return data;
         }
 
-        public async Task<HttpResponseResult<FileConfiguration>> SetConfigAsync(string routeConfig)
+        public async Task<HttpResponseResult<FileConfiguration>> SetConfigAsync(string routeConfig, string token)
         {
             var routeObject = JsonConvert.DeserializeObject<FileRoute>(routeConfig);
-            var tokenInfo = await GetTokenAsync();
-            var oldConfig = await GetConfiguration(tokenInfo);
+            var oldConfig = await GetConfiguration(token);
             oldConfig.Routes.Add(routeObject);
-            var result = await AddOrUpdateConfiguration(oldConfig, tokenInfo);
+            var result = await AddOrUpdateConfiguration(oldConfig, token);
             return result;
         }
 
-        public async Task<HttpResponseResult<FileConfiguration>> SetConfigAsync(FileRoute route)
+        public async Task<HttpResponseResult<FileConfiguration>> SetConfigAsync(FileRoute route, string token)
         {
-            var tokenInfo = await GetTokenAsync();
-            var oldConfig = await GetConfiguration(tokenInfo);
+            var oldConfig = await GetConfiguration(token);
             oldConfig.Routes.Add(route);
-            var result = await AddOrUpdateConfiguration(oldConfig, tokenInfo);
+            var result = await AddOrUpdateConfiguration(oldConfig, token);
             if (!string.IsNullOrWhiteSpace(result.HttpResponseMessages))
             {
                 oldConfig.Routes.Remove(oldConfig.Routes.Last());
-                await AddOrUpdateConfiguration(oldConfig, tokenInfo);
+                await AddOrUpdateConfiguration(oldConfig, token);
             }
             return result;
         }
 
-        public async Task<HttpResponseResult<FileConfiguration>> UpdateConfigAsync(FileRoute fileRoute)
+        public async Task<HttpResponseResult<FileConfiguration>> UpdateConfigAsync(FileRoute fileRoute, string token)
         {
-            var tokenInfo = await GetTokenAsync();
-            var data = await GetConfiguration(tokenInfo);
+            var data = await GetConfiguration(token);
             for (int i = 0; i < data.Routes.Count; i++)
             {
                 var item = data.Routes[i];
@@ -62,61 +64,62 @@ namespace CodePlus.Blazor.Data.Ocelots
                     data.Routes[i] = fileRoute;
                 }
             }
-            var result = await AddOrUpdateConfiguration(data, tokenInfo);
+            var result = await AddOrUpdateConfiguration(data, token);
             return result;
         }
 
-        public async Task<HttpResponseResult<FileConfiguration>> DeleteConfigAsync(string upUrl, string downUrl)
+        public async Task<HttpResponseResult<FileConfiguration>> DeleteConfigAsync(string upUrl, string downUrl, string token)
         {
-            var tokenInfo = await GetTokenAsync();
-            var data = await GetConfiguration(tokenInfo);
+            var data = await GetConfiguration(token);
             var route = data.Routes.FirstOrDefault(a => a.UpstreamPathTemplate == upUrl && a.DownstreamPathTemplate == downUrl);
             if (route == null)
             {
-                throw new KeyNotFoundException("路由映射不存在");
+                throw new Exception("路由映射不存在");
             }
             data.Routes.Remove(route);
-            var result = await AddOrUpdateConfiguration(data, tokenInfo);
+            var result = await AddOrUpdateConfiguration(data, token);
             return result;
         }
 
-        public async Task<HttpResponseResult<FileRoute>> GetConfigByAsync(string upUrl,string downUrl)
+        public async Task<HttpResponseResult<FileRoute>> GetConfigByAsync(string upUrl, string downUrl, string token)
         {
-            var tokenInfo = await GetTokenAsync();
-            var data = await GetConfiguration(tokenInfo);
+            var data = await GetConfiguration(token);
             var route = data.Routes.FirstOrDefault(a => a.UpstreamPathTemplate == upUrl && a.DownstreamPathTemplate == downUrl);
             if (route == null)
             {
-                throw new KeyNotFoundException("路由映射不存在");
+                throw new Exception("路由映射不存在");
             }
             return new HttpResponseResult<FileRoute> { Result = route };
         }
 
-        private async Task<OcelotAdminToken> GetTokenAsync()
+        public async Task<OcelotAdminToken> GetTokenAsync(LoginInputDto input)
         {
-            var ocelotToken = await RedisHelper.GetAsync<OcelotAdminToken>("OcelotToken");
-            if (ocelotToken == null)
+            if (string.IsNullOrWhiteSpace(input.Password))
             {
-                var dic = new Dictionary<string, string>();
-                dic.Add("client_id", "admin");
-                dic.Add("client_secret", "secret");
-                dic.Add("scope", "admin");
-                dic.Add("grant_type", "client_credentials");
-                ocelotToken = await _httpUtilityService.PostFormDataAsync<OcelotAdminToken>("/administration/connect/token", dic);
-                await RedisHelper.SetAsync("OcelotToken", ocelotToken, ocelotToken.ExpiresIn - 100);
+                throw new Exception("密钥不能为空！");
             }
+            if (input.Password != _configuration["OcelotSecret"])
+            {
+                throw new Exception("密钥错误！");
+            }
+            var dic = new Dictionary<string, string>();
+            dic.Add("client_id", "admin");
+            dic.Add("client_secret", input.Password);
+            dic.Add("scope", "admin");
+            dic.Add("grant_type", "client_credentials");
+            var ocelotToken = await _httpUtilityService.PostFormDataAsync<OcelotAdminToken>("/administration/connect/token", dic);
             return ocelotToken;
         }
 
-        private async Task<FileConfiguration> GetConfiguration(OcelotAdminToken tokenInfo)
+        private async Task<FileConfiguration> GetConfiguration(string accessToken)
         {
-            var result = await _httpUtilityService.GetAsync<FileConfiguration>("/administration/configuration", tokenInfo?.AccessToken);
+            var result = await _httpUtilityService.GetAsync<FileConfiguration>("/administration/configuration", accessToken);
             return result;
         }
 
-        private async Task<HttpResponseResult<FileConfiguration>> AddOrUpdateConfiguration(FileConfiguration data, OcelotAdminToken tokenInfo)
+        private async Task<HttpResponseResult<FileConfiguration>> AddOrUpdateConfiguration(FileConfiguration data, string accessToken)
         {
-            var result = await _httpUtilityService.PostAsync<FileConfiguration>("/administration/configuration", data, tokenInfo?.AccessToken);
+            var result = await _httpUtilityService.PostAsync<FileConfiguration>("/administration/configuration", data, accessToken);
             return result;
         }
     }

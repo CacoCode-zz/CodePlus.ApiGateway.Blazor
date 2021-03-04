@@ -1,17 +1,11 @@
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
-using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Serilog;
 
-namespace CodePlus.Blazor
+namespace CodePlus.ApiGateway
 {
     public class Program
     {
@@ -52,7 +46,7 @@ namespace CodePlus.Blazor
                 {
                     loggerConfiguration.ReadFrom.Configuration(hostingContext.Configuration)
                         .Enrich.FromLogContext()
-                        .Enrich.WithProperty("ApplicationName", typeof(Program).Assembly.GetName().Name)
+                        .Enrich.WithProperty("ApplicationName", typeof(Program).Assembly.GetName().Name + ".Blazor")
                         .Enrich.WithProperty("Environment", hostingContext.HostingEnvironment.EnvironmentName);
                 })
                 .UseServiceProviderFactory(new AutofacServiceProviderFactory());

@@ -1,12 +1,12 @@
-﻿using CodePlus.Blazor.Data.Ocelots.Dto;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
-namespace CodePlus.Blazor.Data.Https
+namespace CodePlus.ApiGateway.Data.Https
 {
     public class HttpUtilityService : IHttpUtilityService
     {
@@ -62,7 +62,7 @@ namespace CodePlus.Blazor.Data.Https
             }
             else
             {
-                throw new ApplicationException();
+                throw new Exception();
             }
         }
 
@@ -79,7 +79,7 @@ namespace CodePlus.Blazor.Data.Https
             }
             else
             {
-                throw new ApplicationException();
+                throw new Exception();
             }
         }
     }
